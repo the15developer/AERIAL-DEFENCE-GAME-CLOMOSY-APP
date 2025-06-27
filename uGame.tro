@@ -1,0 +1,504 @@
+var
+uGame:TCLGameForm;
+labelDuration:TClProLabel;
+startDuration, startSn:Integer;
+
+gDurationLabel : TCLProLabel; //oyun sure labeli
+gSn, gDuration:Integer;       //oyun sure labeli icin degiskenler
+
+pointsLabel:TCLProLabel; //puanlari tuttugumuz label
+points:Integer; //puanlari tuttugumuz integer degisken
+
+//TIMER'lar
+startTimer:TCLTimer;             // 3,2,1 diye ekrana gosteren timer
+PlaneDirectionTimer:TCLTimer;    // ucagimizi hareket ettiren deveiceMotionSensor timer
+bulletTimer : TCLTimer;          // mermiyi hareket ettiren timer
+EnemyTimer:TCLTimer;             //dusman ucaklari spawn'layan timer
+EnemyMoveTimer: TCLTimer;        //dusman ucagi hareket ettiren timer
+gameTimer: TCLTimer;             //oyun suresini tutan Timer
+
+enemyIcon: TCLProImage;
+enemyName:String;
+tempEnemy, boomImage:TCLProImage;
+
+DeviceMotionSensor:TClMotionSensor;
+
+
+boomImageName:String;
+rightButton, leftButton, rightFireButton, leftFireButton: TCLProButton;
+i:Integer;
+planeIcon, bulletIcon : TCLProImage;
+msn, duration:integer;
+k:Integer;
+
+SndFire, SndBoom:Integer;
+SndGameOver:Integer;
+
+
+
+array1  : TclArrayString; //dusman ucaklari sakladigimiz dizi
+
+uGameOver:TCLUnit;
+
+
+
+//ucagi hareket ettiren device  motion ile beraber calisan timer fonksiyonu
+void PlaneDirectionLoop;
+{
+  If (Clomosy.PlatformIsMobile)
+  {
+    Case DeviceMotionSensor.GetDirectionX of 
+    {
+      1:
+       planeIcon.Position.X = planeIcon.Position.X - 10;//Move left
+      
+      2:
+       planeIcon.Position.X = planeIcon.Position.X + 10;//Move right
+      
+    }
+    //Case DeviceMotionSensor.GetDirectionY of 
+   // {
+   //   1:MotionImg.Position.Y = MotionImg.Position.Y - Speed;//Move up
+   //   2:MotionImg.Position.Y = MotionImg.Position.Y + Speed;//Move down
+  //  }
+  }
+}
+
+
+
+//mermi'nin hareketini ve carpismasini kontrol eden timer
+void bulletTimerShow;
+{
+  bulletIcon.Position.Y = bulletIcon.Position.Y - 30; // Adjust speed
+  
+  // Check for collision with each enemy
+  
+  for (i = array1.Count - 1 downto 0) 
+  {
+    tempEnemy = uGame.clFindComponent(array1.GetItem(i));
+
+    if (uGame.clIsIntersectsWith(bulletIcon, tempEnemy)) {
+    
+      points=points+1;
+      pointsLabel.Text=IntToStr(points);
+      
+      // Collision detected
+      //bulletTimer.Enabled = False;
+
+      //if (bulletIcon <> Nil) {
+      //  bulletIcon.Visible = False;
+      //  bulletIcon.Free;
+      //  bulletIcon = Nil;
+      //}
+      
+      uGame.PlayGameSound(SndBoom);
+      
+      //boomImageName= 'boomImage'+IntToStr(Random() * 10000);
+      //boomImage = uGame.addNewProImage(uGame, boomImageName);
+      //boomImage.Width=50;
+      //boomImage.Height=50;
+      //boomImage.Position.X=tempEnemy.Position.X;
+      //boomImage.Position.Y=tempEnemy.Position.Y;
+      //boomImage.clProSettings.PictureSource = 'https://www.designstub.com/png-resources/wp-content/uploads/2022/12/cartoon-blast.png';
+      //boomImage.SetclProSettings(boomImage.clProSettings);
+      
+      if(tempEnemy <> Nil){
+      tempEnemy.Visible = False;
+      tempEnemy.Free;
+      array1.RemoveAt(i); // Remove from list
+      tempEnemy=Nil;
+      }
+      
+      break;
+      // Exit loop after first collision
+    }
+  }
+
+  // If bullet moves off-screen, stop the timer
+  if (bulletIcon.Position.Y < -bulletIcon.Height) {
+    bulletTimer.Enabled = False;
+    
+    if (bulletIcon <> Nil) {
+      bulletIcon.Visible = False;
+      bulletIcon.Free;             // Nesneyi bellekten temizle
+      bulletIcon = Nil;           // Referansı sıfırla
+    }
+    
+  }
+}
+
+//vurus aninda mermi spawnlayip, bulletTimer'i baslatan fonksiyon
+void fire;
+{
+  uGame.PlayGameSound(SndFire);
+  
+  bulletIcon = uGame.addNewProImage(uGame, 'bulletIcon');
+  bulletIcon.clProSettings.PictureSource = 'https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/bullet.png';
+  bulletIcon.Align = alNone;
+  bulletIcon.Position.X=planeIcon.position.X+20;
+  bulletIcon.Position.Y=planeIcon.position.Y-50;
+  bulletIcon.Width = 50;
+  bulletIcon.Height =50;
+  
+  bulletIcon.SetclProSettings(bulletIcon.clProSettings);
+  
+  duration = 0;
+  
+  bulletTimer.enabled=True;
+  
+}
+
+
+//ucaklari spawn'layan timer fonksiyonu
+void EnemyLoop;
+var
+  i, randomX, randomY: Integer;
+  
+{
+  for (i = 1 to 3)
+  {
+    enemyName='enemyIcon' + IntToStr(Random() * 10000);
+    enemyIcon = uGame.addNewProImage(uGame, enemyName); // unique name
+
+    enemyIcon.clProSettings.PictureSource = 'https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/enemy.png';
+    enemyIcon.Align = alNone;
+
+    // Random X within screen width (assuming 400 px width, adjust as needed)
+    randomX = clMath.GenerateRandom(0, TForm(uGame).ClientWidth - 50);
+    
+    // Random Y between 0 and 200
+    randomY = clMath.GenerateRandom(0, 100);
+
+    enemyIcon.Position.X = randomX;
+    enemyIcon.Position.Y = randomY;
+
+    enemyIcon.Width = 70;
+    enemyIcon.Height = 70;
+
+    enemyIcon.SetclProSettings(enemyIcon.clProSettings);
+    
+    array1.Add(enemyName)
+    
+    if(k==0){
+      k=k+1;
+    }
+  }
+  
+  if(k==1){
+  EnemyMoveTimer= uGame.AddNewTimer(uGame,'EnemyMoveTimer',100);
+  EnemyMoveTimer.Enabled = True;
+  uGame.AddNewEvent(EnemyMoveTimer,tbeOnTimer,'EnemyMoveLoop');
+  k=k+1;
+  }
+  
+}
+
+//dusman ucaklari hareket ettirip, hareket suresinde aksiyonlarini kontrol eden timer fonksiyonu
+void EnemyMoveLoop;
+var
+i: Integer;
+{
+
+  for (i = array1.Count - 1 downto 0)
+  {
+    tempEnemy = uGame.clFindComponent(array1.GetItem(i));
+
+    if (tempEnemy <> Nil) {
+      tempEnemy.Position.Y = tempEnemy.Position.Y + 10;
+    
+    
+
+      // Remove if off screen
+     // if (tempEnemy.Position.Y > uGame.ClientHeight) {
+      //  tempEnemy.Visible = False;
+      //  tempEnemy.Free;
+      //  array1.RemoveAt(i);
+     // }
+    }
+    
+    if (uGame.clIsIntersectsWith(tempEnemy, planeIcon)) {
+    
+      //points=points-1;
+      //pointsLabel.Text=IntToStr(points);
+      pointsLabel.Text='GAME OVER !';
+      
+      // Collision detected
+      //bulletTimer.Enabled = False;
+
+      //if (bulletIcon <> Nil) {
+      //  bulletIcon.Visible = False;
+      //  bulletIcon.Free;
+      //  bulletIcon = Nil;
+      //}
+      
+      uGame.PlayGameSound(SndBoom);
+      
+      //boomImageName= 'boomImage'+IntToStr(Random() * 10000);
+      //boomImage = uGame.addNewProImage(uGame, boomImageName);
+      //boomImage.Width=50;
+      //boomImage.Height=50;
+      //boomImage.Position.X=tempEnemy.Position.X;
+      //boomImage.Position.Y=tempEnemy.Position.Y;
+      //boomImage.clProSettings.PictureSource = 'https://www.designstub.com/png-resources/wp-content/uploads/2022/12/cartoon-blast.png';
+      //boomImage.SetclProSettings(boomImage.clProSettings);
+      
+      //if(tempEnemy <> Nil){
+      //tempEnemy.Visible = False;
+      //tempEnemy.Free;
+      //array1.RemoveAt(i); // Remove from list
+      //tempEnemy=Nil;
+      //}
+      
+      //uGameOver.UnitName='uGameOver';
+      //uGameOver.CallerForm = uGame;
+      //uGameOver.Run;
+      //uGame.clHide;
+      
+      uGame.AddGameAssetFromUrl('https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/gameover.wav');
+      SndGameOver = uGame.RegisterSound('gameover.wav');
+  
+      uGame.PlayGameSound(SndGameOver);
+
+      
+      Clomosy.RunUnit('uGameOver');
+      
+      gameTimer.Enabled = False;
+      EnemyTimer.Enabled=False;
+      startTimer.Enabled = False;
+      PlaneDirectionTimer.Enabled = False;
+      bulletTimer.Enabled = False;
+      EnemyMoveTimer.Enabled=False;
+      
+    
+      
+      
+    }
+    
+    if(tempEnemy.Position.Y>750){
+      points=points-1;
+      pointsLabel.Text=IntToStr(points);
+      
+      if(tempEnemy <> Nil){
+       tempEnemy.Visible = False;
+       tempEnemy.Free;
+       array1.RemoveAt(i); // Remove from list
+       tempEnemy=Nil;
+      }
+      
+      //pointsLabel.Text='ASILDI !';
+      
+    }
+  }
+}
+
+//oyun suresini tutan timer fonksiyonu
+void gameLoop;
+{
+  
+  if(gDuration==0){
+    gDurationLabel.Text='0:00';
+  }
+  
+  if((gDuration>0) && (gDuration<10)){
+    gDurationLabel.Text='0:0'+ IntToStr(gDuration);
+  }
+  
+  if((gDuration>=10) && (gDuration<60)){
+    gDurationLabel.Text='0:'+ IntToStr(gDuration);
+}
+
+  if(gDuration==60){
+    gDurationLabel.Text='1:00';
+    showMessage('GAME FINISH !');
+    gameTimer.Enabled=False;
+  }
+  
+  gDuration=gDuration+1;
+  
+}
+
+
+void Game;
+{
+  
+  gDuration=0;
+  points=0;
+  
+  
+  gDurationLabel=uGame.AddNewProLabel(uGame, 'gDurationLabel', '0:00');
+  gDurationLabel.Align=alNone;
+  gDurationLabel.Width = 150;
+  gDurationLabel.Height = 50;
+  gDurationLabel.Position.X=320;
+  gDurationLabel.Position.Y=20;
+  gDurationLabel.clProSettings.FontColor = clAlphaColor.clHexToColor('#ffffff');
+  gDurationLabel.clProSettings.FontSize = 20;
+  gDurationLabel.clProSettings.FontVertAlign = palcenter;
+  gDurationLabel.clProSettings.FontHorzAlign = palLeading;
+  gDurationLabel.clProSettings.TextSettings.Font.Style = [fsBold];
+  gDurationLabel.clProSettings.IsFill = True; 
+  gDurationLabel.clProSettings.IsRound = True;
+  
+  gDurationLabel.SetclProSettings(gDurationLabel.clProSettings);
+  
+  pointsLabel=uGame.AddNewProLabel(uGame, 'pointsLabel', IntToStr(points));
+  pointsLabel.Align=alNone;
+  pointsLabel.Width = 150;
+  pointsLabel.Height = 50;
+  pointsLabel.Position.X=30;
+  pointsLabel.Position.Y=20;
+  pointsLabel.clProSettings.FontColor = clAlphaColor.clHexToColor('#ffffff');
+  pointsLabel.clProSettings.FontSize = 20;
+  pointsLabel.clProSettings.FontVertAlign = palcenter;
+  pointsLabel.clProSettings.FontHorzAlign = palLeading;
+  pointsLabel.clProSettings.TextSettings.Font.Style = [fsBold];
+  pointsLabel.clProSettings.IsFill = True; 
+  pointsLabel.clProSettings.IsRound = True;
+  
+  pointsLabel.SetclProSettings(pointsLabel.clProSettings);
+  
+  //ucagi oyun basladiginda hareket ettirebilmek icin 
+  DeviceMotionSensor = uGame.AddNewSensorsMotion(uGame,'DeviceMotionSensor');
+  DeviceMotionSensor.Active = True;
+  
+  //oyun suresini tutmak icin timer ayarlari
+  gameTimer= uGame.AddNewTimer(uGame,'gameTimer',1000);
+  uGame.AddNewEvent(gameTimer,tbeOnTimer,'gameLoop');
+  gameTimer.Enabled = True;
+  
+  //ucaklari tutacagimiz dizi
+  array1 = TClArrayString.Create;
+  
+  
+  //ucagi hareket ettirmek icin device motion ile beraber calisan timer
+  PlaneDirectionTimer= uGame.AddNewTimer(uGame,'PlaneDirectionTimer',1000);
+  PlaneDirectionTimer.Interval = 20;
+  PlaneDirectionTimer.Enabled = True;
+  uGame.AddNewEvent(PlaneDirectionTimer,tbeOnTimer,'PlaneDirectionLoop');
+  
+  //dusman ucaklari spawn'layan timer
+  EnemyTimer= uGame.AddNewTimer(uGame,'EnemyTimer',1000);
+  EnemyTimer.Interval = 3000;
+  EnemyTimer.Enabled = True;
+  uGame.AddNewEvent(EnemyTimer,tbeOnTimer,'EnemyLoop');
+  
+  
+  //sectigimiz ucak ayarlari
+  planeIcon= uGame.addNewProImage(uGame, 'planeIcon');
+  
+  if(selectedPlane.text=='KAAN'){
+   planeIcon.clProSettings.PictureSource = 'https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/kaan.png';
+   planeIcon.SetclProSettings(planeIcon.clProSettings);
+  }
+  if(selectedPlane.text=='HURKUS'){
+   planeIcon.clProSettings.PictureSource = 'https://static.ticimax.cloud/cdn-cgi/image/width=390,quality=85/63567/uploads/urunresimleri/buyuk/hurkus-gorev-ucagi-maket-132-b7-ec6.jpg';
+   planeIcon.SetclProSettings(planeIcon.clProSettings);
+  }
+  if(selectedPlane.text=='HURJET'){
+   planeIcon.clProSettings.PictureSource = 'https://static.ticimax.cloud/63567/uploads/urunresimleri/buyuk/hurjet-maket-132-ce4fab.jpg';
+   planeIcon.SetclProSettings(planeIcon.clProSettings);
+  }
+  
+  planeIcon.Align = alNone;
+  planeIcon.Position.X=150;
+  planeIcon.Position.Y=680;
+  planeIcon.Width = 100;
+  planeIcon.Height =100;
+  planeIcon.SetclProSettings(planeIcon.clProSettings);
+  
+  //sag ve sol vurus butonlari
+  leftFireButton=uGame.addNewProButton(uGame, 'leftFireButton', '');
+  leftFireButton.Align=alNone;
+  leftFireButton.Position.X=10;
+  leftFireButton.Position.Y=400;
+  leftFireButton.Width = 70;
+  leftFireButton.Height = 70;
+  leftFireButton.clProSettings.PictureSource = 'https://icons.iconarchive.com/icons/gartoon-team/gartoon-apps/512/mathematica-explosion-icon.png';
+  leftFireButton.SetclProSettings(leftFireButton.clProSettings);
+  
+  uGame.addNewEvent(leftFireButton, tbeOnClick, 'fire');
+  
+  rightFireButton=uGame.addNewProButton(uGame, 'rightFireButton', '');
+  rightFireButton.Align=alNone;
+  rightFireButton.Position.X=310;
+  rightFireButton.Position.Y=400;
+  rightFireButton.Width = 70;
+  rightFireButton.Height = 70;
+  rightFireButton.clProSettings.PictureSource = 'https://icons.iconarchive.com/icons/gartoon-team/gartoon-apps/512/mathematica-explosion-icon.png';
+  rightFireButton.SetclProSettings(rightFireButton.clProSettings);
+  
+  uGame.addNewEvent(rightFireButton, tbeOnClick, 'fire');
+  
+}
+
+//ilk 3 saniyeyi gosteren timer fonksiyonu
+void startTimerShow;
+{
+  labelDuration.Text='3';
+  Inc(startDuration);
+  
+  startSn = (startDuration div 10); 
+  
+  if(startSn==1){
+    labelDuration.Text='2';
+  }
+  if(startSn==2){
+    labelDuration.Text='1';
+  }
+  if(startSn==3){
+    labelDuration.Text='';
+    startTimer.Enabled = False;
+    Game;
+  }
+}
+
+//ANA FORM kodu
+
+{
+  
+  uGame = TCLGameForm.Create(Self);
+  uGame.SetFormBGImage('https://i.pinimg.com/736x/07/e2/6d/07e26d38278ed9ab2010fa2f60298230.jpg');
+  
+  uGame.AddGameAssetFromUrl('https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/fire.wav');
+  SndFire = uGame.RegisterSound('fire.wav');
+  
+  uGame.AddGameAssetFromUrl('https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/boom.wav');
+  SndBoom = uGame.RegisterSound('boom.wav');
+  
+  uGame.soundisActive= True;
+  
+  labelDuration = uGame.addnewProLabel(uGame, 'labelDuration', '');
+  labelDuration.Align=alNone;
+  labelDuration.Position.X=160;
+  labelDuration.Position.Y=330;
+  labelDuration.Width = 100;
+  labelDuration.Height = 120;
+  labelDuration.clProSettings.FontColor = clAlphaColor.clHexToColor('#ffffff');
+  labelDuration.clProSettings.FontSize = 150;
+  labelDuration.clProSettings.FontVertAlign = palcenter;
+  labelDuration.clProSettings.FontHorzAlign = palLeading;
+  labelDuration.clProSettings.TextSettings.Font.Style = [fsBold];
+  labelDuration.clProSettings.IsFill = True; 
+  labelDuration.clProSettings.IsRound = True;
+  
+  labelDuration.SetclProSettings(labelDuration.clProSettings);
+  
+  k=0;
+  startDuration=0;
+
+  startTimer= uGame.addNewTimer(uGame, 'startTimer', 100);
+  uGame.AddNewEvent(startTimer,tbeOnTimer,'startTimerShow');
+
+  startTimer.Enabled = True;
+  
+  bulletTimer= uGame.addNewTimer(uGame, 'bulletTimer', 10);
+  uGame.AddNewEvent(bulletTimer, tbeOnTimer,'bulletTimerShow');
+  
+
+  
+   
+  //title1.Text='Mrb'; //calisiyor
+  
+  
+  uGame.Run;
+}

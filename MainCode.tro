@@ -1,0 +1,138 @@
+var
+myForm:TCLGameForm;
+KAAN, HURJET, HURKUS : TCLProButton;
+timer:TCLTimer;
+duration, sn:Integer;
+title1:TCLProLabel;
+selectedPlane:TCLLabel;
+uGame:TCLUnit;
+SndSelect:Integer;
+
+
+void selectPlane1;
+{
+   //ShowMessage('KAAN secildi');
+   
+   MyForm.PlayGameSound(SndSelect);
+   selectedPlane.Text='KAAN';
+   
+   uGame.UnitName='uGame';
+   uGame.CallerForm = myForm;
+   uGame.Run;
+   //Clomosy.RunUnit('uGame');
+   //myForm.clHide;
+}
+
+void selectPlane2;
+{
+   //ShowMessage('HURKUS secildi');
+   
+   selectedPlane.Text='HURKUS';
+   MyForm.PlayGameSound(SndSelect);
+   Clomosy.RunUnit('uGame');
+   
+   //myForm.clHide;
+}
+
+void selectPlane3;
+{
+   //ShowMessage('HURJET secildi');
+   selectedPlane.Text='HURJET';
+   MyForm.PlayGameSound(SndSelect);
+   Clomosy.RunUnit('uGame');
+   
+   //myForm.clHide;
+}
+
+
+void main;
+{
+  //ShowMessage('MErhaba');
+  
+  title1=myForm.addnewProLabel(myForm, 'title1', 'CHOOSE YOUR AIRCRAFT');
+  title1.Align=alTop;
+  title1.Margins.Bottom = 60;
+  title1.Margins.Top = 50;
+  title1.Margins.Left = 20;
+  title1.Width = 150;
+  title1.Height = 50;
+  title1.clProSettings.FontColor = clAlphaColor.clHexToColor('#ffffff');
+  title1.clProSettings.FontSize = 30;
+  title1.clProSettings.FontVertAlign = palcenter;
+  title1.clProSettings.FontHorzAlign = palLeading;
+  title1.clProSettings.TextSettings.Font.Style = [fsBold];
+  title1.clProSettings.IsFill = True; 
+  title1.clProSettings.IsRound = True;
+  
+  title1.SetclProSettings(title1.clProSettings);
+  
+  KAAN=myForm.addNewProButton(myForm, 'KAAN', '');
+  
+  myForm.setImage(KAAN, 'https://www.savunmatr.com/wp-content/uploads/2024/05/KAAN-.jpg');
+  
+  KAAN.Align=alNone;
+  KAAN.Width=200;
+  KAAN.Height=150;
+  KAAN.Position.X = 90;
+  KAAN.Position.Y = 130;
+  
+  myForm.addNewEvent(KAAN, tbeOnClick, 'selectPlane1');
+  
+  HURJET=myForm.addNewProButton(myForm, 'HURJET', '');
+  myForm.setImage(HURJET, 'https://www.tusas.com/content/MetaImage/hurkus-banner,122-en,1274.jpg');
+  HURJET.Align=alNone;
+  HURJET.Width=200;
+  HURJET.Height=150;
+  HURJET.Position.X = 90;
+  HURJET.Position.Y = 330;
+  
+  myForm.addNewEvent(HURJET, tbeOnClick, 'selectPlane2');
+  
+  HURKUS=myForm.addNewProButton(myForm, 'HURKUS', '');
+  myForm.setImage(HURKUS, 'https://www.tusas.com/content/MetaImage/1,2654.jpg');
+  HURKUS.Align=alNone;
+  HURKUS.Width=200;
+  HURKUS.Height=150;
+  HURKUS.Position.X = 90;
+  HURKUS.Position.Y = 530;
+  
+  myForm.addNewEvent(HURKUS, tbeOnClick, 'selectPlane3');
+  
+}
+
+void timerShow;
+{
+  
+  Inc(duration);
+  sn = (duration div 10); 
+  if(sn==1){
+    MyForm.SetFormBGImage('https://i.pinimg.com/736x/4c/3d/94/4c3d947e3c29ae2198a65084ec8adb4c.jpg');
+    timer.Enabled = False;
+    main;
+  }
+}
+
+
+{
+MyForm = TCLGameForm.Create(Self);
+
+MyForm.AddGameAssetFromUrl('https://www.soundjay.com/buttons/button-19.wav');
+SndSelect = MyForm.RegisterSound('button-19.wav');
+MyForm.SoundIsActive = True;
+
+uGame = TclUnit.Create;
+
+selectedPlane=myForm.addNewLabel(myForm, 'selectedPlane', '');
+
+duration=0;
+
+timer= myForm.addNewTimer(myForm, 'timer', 100);
+myForm.AddNewEvent(timer,tbeOnTimer,'timerShow');
+
+MyForm.SetFormBGImage('https://i.pinimg.com/736x/2e/59/03/2e590338d441b2e9784a8f168c2fa558.jpg');
+
+timer.Enabled = True;
+
+
+MyForm.Run;
+}

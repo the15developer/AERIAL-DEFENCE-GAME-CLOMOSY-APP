@@ -1,0 +1,24 @@
+var
+uGameOver:TCLGameForm;
+SndGameOver:Integer;
+
+startOver, quit:TCLProButton;
+
+
+{
+  uGameOver = TCLGameForm.Create(Self);
+  uGameOver.SetFormBGImage('https://i.pinimg.com/736x/bb/66/6f/bb666fee62bb3b8335c6c90c4d0577bb.jpg');
+  
+  uGameOver.AddGameAssetFromUrl('https://raw.githubusercontent.com/the15developer/AERIAL-DEFENCE-GAME-CLOMOSY-APP/main/gameover.wav');
+  SndGameOver = uGameOver.RegisterSound('gameover.wav');
+  
+  uGameOver.soundisActive= True;
+  
+  uGameOver.PlayGameSound(SndGameOver);
+
+
+  uGameOver.Run;
+  
+  uGameOver.PlayGameSound(SndGameOver);
+  
+}
