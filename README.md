@@ -18,9 +18,6 @@ Bu oyun, **Clomosy oyun geliştirme platformunda**, nesne yönelimli yapı deste
 - Dil: **TRObject (Clomosy Script Dili)**  
 - Hedef: **Mobil Cihazlar (Android/iOS)**  
 
----
-
-> 📌 **Not:** Bu proje hâlihazırda aktif geliştirme aşamasındadır. İlerleyen sürümlerde skor tablosu, seviye sistemi ve kullanıcı arayüzü iyileştirmeleri planlanmaktadır.
 
 ---
 
@@ -46,4 +43,3 @@ This project is built on the **Clomosy game development platform**, using the **
 
 ---
 
-> 📌 **Note:** This project is currently under active development. Future releases plan to include scoreboards, level systems, and UI improvements.
