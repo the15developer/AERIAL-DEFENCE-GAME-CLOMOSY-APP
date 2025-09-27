@@ -6,6 +6,12 @@
 
 Bu oyun, **Clomosy oyun geliştirme platformunda**, nesne yönelimli yapı destekleyen **TRObject programlama dili** ile geliştirilmiştir. Gerçek zamanlı kontrol, düşman üretimi, ses efektleri ve dinamik oyun döngüsü gibi ileri seviye birçok mekanik entegre edilmiştir.
 
+<p align="center">
+  <img src="aerial1.jpeg" alt="Ana Sayfa" width="300" />
+  <img src="aerial2.jpeg" alt="Ana Sayfa" width="300" />
+  <img src="oyun1.jpeg" alt="Ana Sayfa" width="300" />
+</p>
+
 ### 🎯 Temel Özellikler
 - **Uçak Seçimi:** KAAN, HÜRJET, HÜRKUŞ-C gibi TUSAŞ üretimi jetlerden seçim.  
 - **Gerçek Zamanlı Kontrol:** Butonlarla yön kontrolü.  
