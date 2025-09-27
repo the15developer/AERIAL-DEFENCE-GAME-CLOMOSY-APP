@@ -4,7 +4,7 @@
 
 **Aerial Defence Game**, TUSAŞ (Türk Havacılık ve Uzay Sanayii) tarafından geliştirilen ileri seviye savaş uçakları olan **KAAN**, **HÜRJET** ve **HÜRKUŞ-C** modellerinin yer aldığı, mobil cihazlara özel olarak geliştirilen bir hava savunma oyunudur.
 
-Bu oyun, **Clomosy oyun geliştirme platformunda**, nesne yönelimli yapı destekleyen **TRObject programlama dili** ile geliştirilmiştir. Gerçek zamanlı kontrol, düşman üretimi, ses efektleri ve dinamik oyun döngüsü gibi ileri seviye birçok mekanik entegre edilmiştir.
+Bu oyun, 1 hafta içerisinde, **Clomosy platformunda**, nesne yönelimli yapı destekleyen **TRObject programlama dili** ile geliştirilmiştir. Gerçek zamanlı kontrol, düşman üretimi, ses efektleri ve dinamik oyun döngüsü gibi ileri seviye birçok mekanik entegre edilmiştir.
 
 <p align="center">
   <img src="aerial1.jpeg" alt="Ana Sayfa" width="300" />
